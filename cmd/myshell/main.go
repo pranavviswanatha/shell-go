@@ -75,8 +75,15 @@ func typeCommand(cmds []string) {
 }
 
 func pwdCommand(cmds []string) {
-	pathString, _ := os.Getwd()
-	fmt.Fprintln(os.Stdout, pathString)
+	path, _ := os.Getwd()
+	fmt.Fprintln(os.Stdout, path)
+}
+
+func cdCommand(cmds []string) {
+	err := os.Chdir(cmds[0])
+	if err != nil {
+		fmt.Fprintf(os.Stdout, "%s: No such file or directory\n", cmds[0])
+	}
 }
 
 func initMap() {
@@ -85,4 +92,5 @@ func initMap() {
 	handlerMap["echo"] = echoCommand
 	handlerMap["type"] = typeCommand
 	handlerMap["pwd"] = pwdCommand
+	handlerMap["cd"] = cdCommand
 }
