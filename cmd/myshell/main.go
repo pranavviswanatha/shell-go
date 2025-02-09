@@ -24,14 +24,38 @@ func main() {
 	}
 }
 
+func splitCommand(command string) []string {
+	var cmds []string
+	s := strings.Trim(command, "\r\n")
+	for {
+		start := strings.IndexAny(s, "'\"")
+		if start == -1 {
+			cmds = append(cmds, strings.Fields(s)...)
+			break
+		}
+		// fmt.Println("log: pointcrossed")
+		ch := s[start]
+		cmds = append(cmds, strings.Fields(s[:start])...)
+		s = s[start+1:]
+		end := strings.IndexByte(s, ch)
+		token := s[:end]
+		if len(s) > end+1 && s[end+1] == ' ' {
+			token = token + " "
+		}
+		cmds = append(cmds, token)
+		s = s[end+1:]
+	}
+	return cmds
+}
+
 func commandHandler(command string) {
-	cmds := strings.Split(command, " ")
+	cmds := splitCommand(command)
 	if len(cmds) == 0 {
 		return
 	}
 	f, ok := handlerMap[cmds[0]]
 	if ok {
-		f(cmds[1:])
+		go f(cmds[1:])
 		return
 	}
 	cmd := exec.Command(cmds[0], cmds[1:]...)
@@ -45,7 +69,7 @@ func commandHandler(command string) {
 }
 
 func echoCommand(cmds []string) {
-	s := strings.Join(cmds, " ")
+	s := strings.Join(cmds, "")
 	fmt.Println(s)
 }
 
