@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -31,7 +32,13 @@ func commandHandler(command string) {
 	f, ok := handlerMap[cmds[0]]
 	if ok {
 		f(cmds[1:])
-	} else {
+		return
+	}
+	cmd := exec.Command(cmds[0], cmds[1:]...)
+	cmd.Stderr = os.Stderr
+	cmd.Stdout = os.Stdout
+	err := cmd.Run()
+	if err != nil {
 		invalidCommand(cmds)
 	}
 
