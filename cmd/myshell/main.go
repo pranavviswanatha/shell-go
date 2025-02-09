@@ -74,9 +74,15 @@ func typeCommand(cmds []string) {
 	fmt.Fprintln(os.Stdout, cmds[0]+": not found")
 }
 
+func pwdCommand(cmds []string) {
+	pathString, _ := os.Getwd()
+	fmt.Fprintln(os.Stdout, pathString)
+}
+
 func initMap() {
 	handlerMap = make(map[string]func([]string))
 	handlerMap["exit"] = exitCommand
 	handlerMap["echo"] = echoCommand
 	handlerMap["type"] = typeCommand
+	handlerMap["pwd"] = pwdCommand
 }
