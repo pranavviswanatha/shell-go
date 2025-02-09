@@ -30,10 +30,16 @@ func commandHandler(command string) {
 	switch cmds[0] {
 	case "exit":
 		exitCommand()
+	case "echo":
+		echoCommand(cmds[1:])
 	default:
 		invalidCommand(command)
-
 	}
+}
+
+func echoCommand(cmds []string) {
+	s := strings.Join(cmds, " ")
+	fmt.Println(s)
 }
 
 func invalidCommand(command string) {
