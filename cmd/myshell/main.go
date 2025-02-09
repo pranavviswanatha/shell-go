@@ -7,10 +7,10 @@ import (
 	"strings"
 )
 
-// Ensures gofmt doesn't remove the "fmt" import in stage 1 (feel free to remove this!)
-var _ = fmt.Fprint
+var handlerMap map[string]func([]string)
 
 func main() {
+	initMap()
 	for {
 		fmt.Fprint(os.Stdout, "$ ")
 		command, err := bufio.NewReader(os.Stdin).ReadString('\n')
@@ -27,13 +27,11 @@ func commandHandler(command string) {
 	if len(cmds) == 0 {
 		return
 	}
-	switch cmds[0] {
-	case "exit":
-		exitCommand()
-	case "echo":
-		echoCommand(cmds[1:])
-	default:
-		invalidCommand(command)
+	f, ok := handlerMap[cmds[0]]
+	if ok {
+		f(cmds[1:])
+	} else {
+		invalidCommand(cmds)
 	}
 }
 
@@ -42,10 +40,26 @@ func echoCommand(cmds []string) {
 	fmt.Println(s)
 }
 
-func invalidCommand(command string) {
-	fmt.Println(command + ": command not found")
+func invalidCommand(cmds []string) {
+	fmt.Fprintln(os.Stdout, cmds[0]+": command not found")
 }
 
-func exitCommand() {
+func exitCommand(cmds []string) {
 	os.Exit(0)
+}
+
+func typeCommand(cmds []string) {
+	_, ok := handlerMap[cmds[0]]
+	if ok {
+		fmt.Fprintln(os.Stdout, cmds[0]+" is a shell builtin")
+	} else {
+		fmt.Fprintln(os.Stdout, cmds[0]+": not found")
+	}
+}
+
+func initMap() {
+	handlerMap = make(map[string]func([]string))
+	handlerMap["exit"] = exitCommand
+	handlerMap["echo"] = echoCommand
+	handlerMap["type"] = typeCommand
 }
