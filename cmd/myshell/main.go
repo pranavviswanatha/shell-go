@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 )
 
@@ -33,6 +34,7 @@ func commandHandler(command string) {
 	} else {
 		invalidCommand(cmds)
 	}
+
 }
 
 func echoCommand(cmds []string) {
@@ -52,9 +54,17 @@ func typeCommand(cmds []string) {
 	_, ok := handlerMap[cmds[0]]
 	if ok {
 		fmt.Fprintln(os.Stdout, cmds[0]+" is a shell builtin")
-	} else {
-		fmt.Fprintln(os.Stdout, cmds[0]+": not found")
+		return
 	}
+	paths := strings.Split(os.Getenv("PATH"), ":")
+	for _, path := range paths {
+		fp := filepath.Join(path, cmds[0])
+		if _, err := os.Stat(fp); err == nil {
+			fmt.Println(fp)
+			return
+		}
+	}
+	fmt.Fprintln(os.Stdout, cmds[0]+": not found")
 }
 
 func initMap() {
