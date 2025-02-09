@@ -80,6 +80,12 @@ func pwdCommand(cmds []string) {
 }
 
 func cdCommand(cmds []string) {
+	if strings.TrimSpace(cmds[0]) == "~" {
+		home := os.Getenv("HOME")
+		if err := os.Chdir(home); err != nil {
+			os.Exit(1)
+		}
+	}
 	err := os.Chdir(cmds[0])
 	if err != nil {
 		fmt.Fprintf(os.Stdout, "%s: No such file or directory\n", cmds[0])
